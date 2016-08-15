@@ -41,8 +41,29 @@ def extract_names(filename):
   ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
   """
   # +++your code here+++
-  return
+  f = open(filename, 'rU')
+  content = f.read()
+  f.close()
 
+  match = re.search(r'Popularity in (\d\d\d\d)', content)
+  year = match.group(1)
+  name_ranks = re.findall(r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', content)
+  #list elems in name_ranks: [(...), ('999', 'Misael', 'Leila')]
+  
+  name_rank_dict = {}
+  for (rank, male, female) in name_ranks:
+    if male in name_rank_dict:
+      rank = min(rank, name_rank_dict[male])
+    if female in name_rank_dict:
+      rank = min(rank, name_rank_dict[female])
+    name_rank_dict[male] = rank
+    name_rank_dict[female] = rank
+
+  name_ranks = [year] 
+  for (name, rank) in sorted(name_rank_dict.items()):
+    name_ranks.append(name + ' ' + rank)
+  
+  return name_ranks
 
 def main():
   # This command-line parsing code is provided.
@@ -64,5 +85,17 @@ def main():
   # For each filename, get the names, then either print the text output
   # or write it to a summary file
   
+  for filename in args:
+    name_ranks = extract_names(filename)
+    output = '\n'.join(name_ranks) + '\n'
+    if summary:
+      #write to file
+      f = open(filename + '.summary', 'w')
+      f.write(output)
+      f.close()
+    else:
+      #print output
+      print output
+
 if __name__ == '__main__':
   main()
