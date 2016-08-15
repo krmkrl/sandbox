@@ -52,12 +52,10 @@ def extract_names(filename):
   
   name_rank_dict = {}
   for (rank, male, female) in name_ranks:
-    if male in name_rank_dict:
-      rank = min(rank, name_rank_dict[male])
-    if female in name_rank_dict:
-      rank = min(rank, name_rank_dict[female])
-    name_rank_dict[male] = rank
-    name_rank_dict[female] = rank
+    if male not in name_rank_dict:
+      name_rank_dict[male] = rank
+    if female not in name_rank_dict:
+      name_rank_dict[female] = rank
 
   name_ranks = [year] 
   for (name, rank) in sorted(name_rank_dict.items()):
