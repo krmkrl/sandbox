@@ -18,6 +18,15 @@ Here's what a puzzle url looks like:
 10.254.254.28 - - [06/Aug/2007:00:13:48 -0700] "GET /~foo/puzzle-bar-aaab.jpg HTTP/1.0" 302 528 "-" "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6"
 """
 
+def sort_fun(url):
+  """ sort url by second word if existent ("-wordchars1-wordchars2.jpg") 
+  """
+  second_word_match = re.search(r'-[\w]+-([\w]+)\.[\w]+$', url)
+  if second_word_match:
+    return second_word_match.group(1)
+  else:
+    return url
+
 
 def read_urls(filename):
   """Returns a list of the puzzle urls from the given log file,
@@ -36,25 +45,15 @@ def read_urls(filename):
     sys.stderr.write('Cannot read from file ' + filename + '\n')
     sys.stderr.write(str(e))
 
-  second_word_map = {}
   get_matches = re.findall(r'GET\s(\S+)', log_content)
-  for get_match in get_matches:
+  for get_match in get_matches:   
     if 'puzzle' in get_match:
       #construct url using hostname from logfile
       url = 'http://' + hostname + get_match
       if url not in puzzle_urls:
         puzzle_urls.append(url)
-        second_word_match = re.search(r'-[\w]+-([\w]+).jpg$', get_match)
-        if second_word_match:
-          second_word_map[second_word_match.group(1)] = url
 
-  if second_word_map:
-    second_list = []
-    for second_word in sorted(second_word_map.keys()):
-      second_list.append(second_word_map[second_word])
-    return second_list
-  else:
-    return sorted(puzzle_urls)
+  return sorted(puzzle_urls, key=sort_fun)
 
 def download_images(img_urls, dest_dir):
   """Given the urls already in the correct order, downloads
@@ -85,7 +84,7 @@ def download_images(img_urls, dest_dir):
 
   #create index.html
   f = open(os.path.join(dir_path, 'index.html'),'w')
-  f.write('<verbatim>\n<html>\n<body>\n')
+  f.write('<html>\n<body>\n')
   for image in images:
     f.write('<img src="' + image + '">')
   f.write('</body>\n</html>\n')
