@@ -36,6 +36,7 @@ def read_urls(filename):
     sys.stderr.write('Cannot read from file ' + filename + '\n')
     sys.stderr.write(str(e))
 
+  second_word_map = {}
   get_matches = re.findall(r'GET\s(\S+)', log_content)
   for get_match in get_matches:
     if 'puzzle' in get_match:
@@ -43,9 +44,17 @@ def read_urls(filename):
       url = 'http://' + hostname + get_match
       if url not in puzzle_urls:
         puzzle_urls.append(url)
-      
-  return sorted(puzzle_urls)
-  
+        second_word_match = re.search(r'-[\w]+-([\w]+).jpg$', get_match)
+        if second_word_match:
+          second_word_map[second_word_match.group(1)] = url
+
+  if second_word_map:
+    second_list = []
+    for second_word in sorted(second_word_map.keys()):
+      second_list.append(second_word_map[second_word])
+    return second_list
+  else:
+    return sorted(puzzle_urls)
 
 def download_images(img_urls, dest_dir):
   """Given the urls already in the correct order, downloads
