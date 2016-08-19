@@ -25,6 +25,26 @@ def read_urls(filename):
   Screens out duplicate urls and returns the urls sorted into
   increasing order."""
   # +++your code here+++
+  puzzle_urls = []
+  separator = filename.find('_') + 1
+  hostname = filename[separator:]
+  try:
+    f = open(filename, 'rU')
+    log_content = f.read()
+    f.close()
+  except IOError, e:
+    sys.stderr.write('Cannot read from file ' + filename + '\n')
+    sys.stderr.write(str(e))
+
+  get_matches = re.findall(r'GET\s(\S+)', log_content)
+  for get_match in get_matches:
+    if 'puzzle' in get_match:
+      #construct url using hostname from logfile
+      url = 'http://' + hostname + get_match
+      if url not in puzzle_urls:
+        puzzle_urls.append(url)
+      
+  return sorted(puzzle_urls)
   
 
 def download_images(img_urls, dest_dir):
@@ -36,7 +56,31 @@ def download_images(img_urls, dest_dir):
   Creates the directory if necessary.
   """
   # +++your code here+++
-  
+  dir_path = os.path.abspath(dest_dir)
+  if not os.path.exists(dir_path):
+    os.makedirs(dir_path)
+
+  count = 0
+  images = []
+  for img_url in img_urls:
+    destfilename = 'img' + str(count)
+    count += 1
+    destpath = os.path.join(dir_path, destfilename)
+    images.append(destpath)
+    try:
+      print 'Retrieving file', img_url, '...'
+      urllib.urlretrieve(img_url, destpath)
+    except IOError:
+      sys.stderr.write('Problem retreiving url: ' + img_url)
+      sys.exit(1)
+
+  #create index.html
+  f = open(os.path.join(dir_path, 'index.html'),'w')
+  f.write('<verbatim>\n<html>\n<body>\n')
+  for image in images:
+    f.write('<img src="' + image + '">')
+  f.write('</body>\n</html>\n')
+  f.close()
 
 def main():
   args = sys.argv[1:]
