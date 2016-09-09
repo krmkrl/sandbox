@@ -91,23 +91,23 @@ class Solution:
         return self.decodeBFS(data.split(","))
 
 
+if __name__ == "__main__":
+  sol = Solution()
 
-sol = Solution()
+  tree = TreeNode(3)
+  tree.left = TreeNode(9)
+  tree.right = TreeNode(20)
+  tree.right.left = TreeNode(15)
+  tree.right.right = TreeNode(7)
 
-tree = TreeNode(3)
-tree.left = TreeNode(9)
-tree.right = TreeNode(20)
-tree.right.left = TreeNode(15)
-tree.right.right = TreeNode(7)
+  serStr = sol.serialize(tree)
+  print serStr
+  desTree = sol.deserialize(serStr)
+  #serialize result to check correctness
+  ser2Str = sol.serialize(desTree)
 
-serStr = sol.serialize(tree)
-print serStr
-desTree = sol.deserialize(serStr)
-#serialize result to check correctness
-ser2Str = sol.serialize(desTree)
+  tree = None
+  empty = sol.serialize(tree)
+  sol.deserialize(empty)
 
-tree = None
-empty = sol.serialize(tree)
-sol.deserialize(empty)
-
-print ser2Str
+  print ser2Str
