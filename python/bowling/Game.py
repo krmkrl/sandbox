@@ -33,7 +33,7 @@ class Game:
       if len(self.frames) == Game.NumFrames: #last frame
         if roll2 is None:
           self.frames[-1] = (roll1, pins)
-        elif roll2 > 0 and roll1 + roll2 == Game.FrameMaxPoints or roll2 == Game.FrameMaxPoints: #spare or strike
+        elif roll1 + roll2 >= Game.FrameMaxPoints: #spare or strike
           self.lastRoll = pins
         else: #trying to do bonus roll without spare or strike
           raise GameEndError
@@ -138,6 +138,22 @@ class GameTest(unittest.TestCase):
     self.game.roll(4)
     score = self.game.score()
     self.assertEquals(score, 28)
+
+  def testBonusRollStrike(self):
+    self.rollSameMany(18,1)
+    self.game.roll(10)
+    self.game.roll(0)
+    self.game.roll(5)
+    score = self.game.score()
+    self.assertEquals(score, 18 + 15)
+  
+  def testBonusRollSpare(self):
+    self.rollSameMany(18,1)
+    self.game.roll(4)
+    self.game.roll(6)
+    self.game.roll(1)
+    score = self.game.score()
+    self.assertEquals(score, 18 + 11)
   
   def testTooManyRolls(self):
     with self.assertRaises(GameEndError):
