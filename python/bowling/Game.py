@@ -1,4 +1,5 @@
 import unittest
+import itertools
 
 """
 Requires python 2.7.9
@@ -89,106 +90,85 @@ class GameTest(unittest.TestCase):
   def setUp(self):
     self.game = Game()
 
-  def rollSameMany(self, numRolls, pins):
-    for i in range(0, numRolls):
-      self.game.roll(pins)
+  def roll_list(self, rolls):
+    for r in rolls:
+      self.game.roll(r)
 
   def testMinScore(self): #0
-    self.rollSameMany(Game.NumFrames * 2, 0)
+    rolls = list(itertools.repeat(0, Game.NumFrames * 2))
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 0)
 
   def testAllOnes(self): #20
-    self.rollSameMany(Game.NumFrames * 2, 1)
+    rolls = list(itertools.repeat(1, Game.NumFrames * 2))
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 20)
 
   def testSpare(self):
-    self.game.roll(5)
-    self.game.roll(5) #spare
-    self.game.roll(7)
-    self.game.roll(1)
+    rolls = [5,5,7,1]
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 25)
 
   def testAllSpare(self):
-    self.rollSameMany(Game.NumFrames * 2 + 1, 5) #21 rolls
+    rolls = list(itertools.repeat(5,Game.NumFrames * 2 + 1)) #21 rolls
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 150) 
     
   def testStrike(self):
-    self.game.roll(10)
-    self.game.roll(5)
-    self.game.roll(2)
+    rolls = [10,5,2]
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 24)
   
   def testContinousStrikes(self):
-    self.game.roll(10)
-    self.game.roll(10)
-    self.game.roll(2)
-    self.game.roll(4)
+    rolls = [10,10,2,4]
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 44)
   
   def testIncompleteFrame(self):
-    self.game.roll(10)
-    self.game.roll(5)
-    self.game.roll(2)
-    self.game.roll(4)
+    rolls = [10,5,2,4]
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 28)
 
   def testBonusRollStrike(self):
-    self.rollSameMany(18,1)
-    self.game.roll(10)
-    self.game.roll(0)
-    self.game.roll(5)
+    rolls = list(itertools.repeat(1,18))
+    rolls += [10,0,5]
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 18 + 15)
   
   def testBonusRollSpare(self):
-    self.rollSameMany(18,1)
-    self.game.roll(4)
-    self.game.roll(6)
-    self.game.roll(1)
+    rolls = list(itertools.repeat(1,18))
+    rolls += [4,6,1]
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 18 + 11)
   
   def testTooManyRolls(self):
     with self.assertRaises(GameEndError):
-      self.rollSameMany(Game.NumFrames * 2 + 2, 5) #22 rolls
+      rolls = list(itertools.repeat(5, Game.NumFrames * 2 + 2)) #22 rolls
+      self.roll_list(rolls)
   
   def testLastRollNotAllowed(self):
-    self.rollSameMany(Game.NumFrames * 2, 4)
+    rolls = list(itertools.repeat(4, Game.NumFrames * 2))
+    self.roll_list(rolls)
     with self.assertRaises(GameEndError):
       self.game.roll(2)
     
   def testMaxScore(self): #300
-    self.rollSameMany(12, 10) #12 rolls if all strikes
+    rolls = list(itertools.repeat(10, 12)) #12 rolls if all strikes
+    self.roll_list(rolls)
     score = self.game.score()
     self.assertEquals(score, 300)
 
   def testCustomScore(self):
-    self.game.roll(1)
-    self.game.roll(4)
-    self.game.roll(4)
-    self.game.roll(5)
-    self.game.roll(6)
-    self.game.roll(4)
-    self.game.roll(5)
-    self.game.roll(5)
-    self.game.roll(10)
-    self.game.roll(0)
-    self.game.roll(1)
-    self.game.roll(7)
-    self.game.roll(3)
-    self.game.roll(6)
-    self.game.roll(4)
-    self.game.roll(10)
-    self.game.roll(2)
-    self.game.roll(8)
-    self.game.roll(6)
+    self.roll_list([1,4,4,5,6,4,5,5,10,0,1,7,3,6,4,10,2,8,6])
     score = self.game.score()
     self.assertEquals(score, 133)
 
