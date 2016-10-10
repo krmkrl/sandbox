@@ -16,7 +16,7 @@ score [] = 0
 score [(x,-1,-1)] = x
 score [(x,y,-1)] = x + y
 score [(x,y,z)] = x + y + z
-score ((10,-1,-1):(10,-1,-1):(x3,y3,z3):xs) = 10 + 10 + x3 + (score $ (10,-1,-1):(x3,y3,z3):xs)
-score ((10,-1,-1):(x2,y2,z2):xs) = 10 + x2 + y2 + (score $ (x2,y2,z2):xs)
-score ((x,y,-1):(x2,y2,z2):xs) = if x + y == 10 then 10 + x2 + (score $ (x2,y2,z2):xs) else x + y + (score $ (x2,y2,z2):xs)
+score ((10,-1,-1):(10,-1,-1):rest@((x3,y3,z3):xs)) = 10 + 10 + x3 + (score $ (10,-1,-1):rest)
+score ((10,-1,-1):rest@((x2,y2,z2):xs)) = 10 + x2 + y2 + (score rest)
+score ((x,y,-1):rest@((x2,y2,z2):xs)) = if x + y == 10 then 10 + x2 + (score rest) else x + y + (score rest)
 
