@@ -1,15 +1,18 @@
 module Bowling(roll, score, Frame) where
 
+import Control.Monad
+
 type Frame = (Int, Int, Int) --second field is -1 on strike, third field present in last frame (if spare or strike)
 
-roll :: [Frame] -> Int -> [Frame]
-roll [] n = [(n, -1, -1)]
-roll frames n = reverse $ rollReversed (reverse frames)
+roll :: [Frame] -> Int -> Either String [Frame]
+roll [] n = return [(n, -1, -1)]
+roll frames n = liftM reverse (rollReversed (reverse frames)) --liftM same as fmap for Monads
         where rollReversed rframes
-                | length rframes == 10 = let (x,y,z) = head rframes in if y == -1 then (x,n,-1):(tail rframes) else if x + y >= 10 then (x,y,n):(tail rframes) else rframes
-                | ((10,-1,-1):fs) <- rframes = (n,-1,-1):rframes
-                | ((x,-1,-1):fs) <- rframes = (x,n,-1):fs
-                | ((x,y,-1):fs) <- rframes = (n,-1,-1):rframes
+                | length rframes == 10 = let (x,y,z) = head rframes in if y == -1 then return $ (x,n,-1):(tail rframes) else if x + y >= 10 then return $ (x,y,n):(tail rframes) else Left "game done"
+                | ((10,-1,-1):fs) <- rframes = return $ (n,-1,-1):rframes
+                | ((x,-1,-1):fs) <- rframes = return $ (x,n,-1):fs
+                | ((x,y,-1):fs) <- rframes = return $ (n,-1,-1):rframes
+
 
 score :: [Frame] -> Int
 score [] = 0
