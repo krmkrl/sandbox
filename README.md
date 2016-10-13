@@ -1,2 +1,2 @@
 # sandbox
-Testing out various things
+Coding stuff for experimenting and learning.
