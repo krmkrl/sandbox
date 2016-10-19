@@ -9,9 +9,6 @@ class Solution:
     """
     def minWindow(self, source, target):
         tlen = len(target)
-        if tlen == 0:
-            return ""
-
         for searchLength in range(tlen, len(source) + 1):
             for pos in range(0, len(source) - searchLength + 1):
                 substr = source[pos:(pos + searchLength)]
@@ -21,8 +18,7 @@ class Solution:
                         if c == substr[s] and not s in used:
                             used.add(s) #index s used
                             break
-                            
-                if len(used) == len(target):
+                if len(used) == tlen:
                     return substr
         return ""
             
