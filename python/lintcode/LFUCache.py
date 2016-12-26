@@ -6,8 +6,7 @@ class LFUCache:
     # @param capacity, an integer
     def __init__(self, capacity):
         self.capacity = capacity
-        self.map = {} #map key to value
-        self.usage = {} #map of key to (usage, timestamp)
+        self.map = {} #map key to (value, usage, timestamp)
 
 
     # @param key, an integer
@@ -18,30 +17,27 @@ class LFUCache:
             return
         if len(self.map) == self.capacity and key not in self.map:
             #remove key with the lowest usage
-            k_u_list = self.usage.items()
-            min_key, (min_usage, ts_min) = k_u_list[0]
-            for k,(usage, ts) in k_u_list:
+            k_u_list = self.map.items()
+            min_key, (_, min_usage, ts_min) = k_u_list[0]
+            for k,(_, usage, ts) in k_u_list:
                 if usage < min_usage or (usage == min_usage and ts < ts_min):
                     min_key = k
                     min_usage = usage
                     ts_min = ts 
             del self.map[min_key]
-            del self.usage[min_key]
-        self.map[key] = value
         now = time.time()
-        if key in self.usage:
-            (usage, ts) = self.usage[key]
-            self.usage[key] = (usage + 1, now)
+        if key in self.map:
+            (_, usage, _) = self.map[key]
+            self.map[key] = (value, usage + 1, now)
         else:
-            self.usage[key] = (1, now)
+            self.map[key] = (value, 1, now)
 
 
     # @return an integer
     def get(self, key):
         if key in self.map:
-            val = self.map[key]
-            (usage, _) = self.usage[key]
-            self.usage[key] = (usage + 1, time.time())
+            (val, usage, _) = self.map[key]
+            self.map[key] = (val, usage + 1, time.time())
             return val
         else:
             return -1
