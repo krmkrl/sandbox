@@ -11,15 +11,11 @@ class Solution:
             return 0
         maxSum = nums[0]
         candSum = nums[0]
-        begin = 0
-        beginCand = 0
         contig = True
         for index, val in enumerate(nums[1:], 1):
             candSum += val
             if contig: 
                 if maxSum < 0 and val > maxSum:
-                    begin = index
-                    beginCand = index
                     maxSum = val
                     candSum = val
                 elif maxSum + val > maxSum:
@@ -28,18 +24,14 @@ class Solution:
                     contig = False
             else:
                 if val > maxSum:
-                    begin = index
-                    beginCand = index
                     maxSum = val
                     candSum = val
                     contig = True
                 elif candSum > maxSum:
                     maxSum = candSum
-                    begin = beginCand
                     contig = True
                 elif val >= candSum:
                     candSum = val
-                    beginCand = index
         return maxSum
 
 class Tester(unittest.TestCase):
@@ -61,6 +53,16 @@ class Tester(unittest.TestCase):
         nums = [1, -1]
         subsum = self.sol.maxSubArray(nums)
         self.assertEquals(subsum, 1)
+    
+    def test_pos(self):
+        nums = [1, 2, 3, 4]
+        subsum = self.sol.maxSubArray(nums)
+        self.assertEquals(subsum, 10)
+
+    def test_neg(self):
+        nums = [-1, -2, -3, -4]
+        subsum = self.sol.maxSubArray(nums)
+        self.assertEquals(subsum, -1)
 
     def test_two_2(self):
         nums = [-1, 1]
